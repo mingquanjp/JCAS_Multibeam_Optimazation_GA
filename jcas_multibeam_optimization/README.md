@@ -1,14 +1,83 @@
-# Multibeam Optimization for Joint Communication and Sensing (JCAS)
-As a part of the university project, a set of multibeams for JCAS using Two-Step Iterative Least Square approach in MATLAB was optimized. The idea is coming from the
-paper [Multibeam for Joint Communication and Radar Sensing Using Steerable Analog Antenna Arrays](https://ieeexplore.ieee.org/document/8550811).
-Below, you can see an optimized multibeam with two subbeams: one for communication (pointing to the boresight), another for sensing.
-<p align="center">
-<img src="https://user-images.githubusercontent.com/49762976/182257923-7be103fa-8604-40e4-bd7c-0dd343f7e847.png" width="500" />
-</p>
-A benefit of this approach is that a set of multibeams can be computed offline saving computational resources and reducing the latency associated with the packet transmission. In the fiugre below, you can see 8 multibeams pointing to the boresight communication direction, while scanning across the whole range of equivalent directions. 
-<p align="center">
-<img src="https://user-images.githubusercontent.com/49762976/182258099-f6a9297c-cd4e-4cd2-a8c7-0a0ce337a017.png" width="500" />
-</p>
-In the figure, one can see that the desired properties of the beams are obtained: relatively low sidelobe level, scanning beams point to the desired scanning directions and the communication beams are pointing into the desired boresight direction.
+# JCAS Multibeam Optimization using Genetic Algorithms
 
-More details on Multibeam Generation (my part) as well as BF codebook optimization and quantization (@MengshuaiZ) can be found in our report [Report.pdf](https://github.com/RostyslavUA/jcas_multibeam_optimization/files/9237855/Report_Zhang_Olshevskyi.pdf) and final presentation [Presentation.pdf](https://github.com/RostyslavUA/jcas_multibeam_optimization/files/9237858/slides.pdf).
+## Overview
+
+This project focuses on **Joint Communication and Sensing (JCAS)** multibeam optimization for steerable analog antenna arrays. The goal is to design beamforming vectors that simultaneously support communication (pointing to a specific user) and radar sensing (scanning across multiple directions) with minimal interference.
+
+Originally based on the **Two-Step Iterative Least Square (ILS)** approach, this repository has been expanded to include and compare various **Genetic Algorithm (GA)** strategies for optimizing the antenna array weights.
+
+## Key Features
+
+- **Multibeam Generation**: Creates beams with a main lobe for communication and multiple sub-beams for sensing.
+- **Optimization Algorithms**:
+  - **Iterative Least Squares (ILS)**: The baseline method from the original research.
+  - **Standard Genetic Algorithm (GA)**: Global optimization search.
+  - **Elitism GA**: GA variant preserving the best high-quality individuals across generations to ensure convergence stability.
+  - **Steady-State GA (SSGA)**: GA variant with high overlap between generations, replacing only a small fraction of the population to maintain diversity while converging.
+
+## Project Structure
+
+### Main Execution Files
+
+| File Name           | Description                                                                         | Algorithm           |
+| ------------------- | ----------------------------------------------------------------------------------- | ------------------- |
+| `main.m`            | The original implementation using the Two-Step Iterative Least Square (ILS) method. | **ILS**             |
+| `main_ga.m`         | Optimization using the standard Genetic Algorithm.                                  | **Standard GA**     |
+| `main_ga_elitism.m` | GA implementation focusing on Elitism strategy (preserving top performers).         | **Elitism GA**      |
+| `main_ga_ss.m`      | Steady-State Genetic Algorithm implementation (high population retention).          | **Steady-State GA** |
+
+### Helper Functions
+
+- `generateQuantizedArrResponse.m`: Simulates the antenna array response.
+- `generateDesPattern.m`: Generates the desired ideal beam pattern (Reference Pattern).
+- `jcas_fitness.m`: The objective function (Cost Function) used by GA to evaluate beam quality (MSE between generated and desired patterns).
+- `generateSteeringVector.m`: Computes steering vectors for the ULA (Uniform Linear Array).
+- `twoStepILS.m`: Core function for the iterative least squares logic.
+
+## Getting Started
+
+### Prerequisites
+
+- **MATLAB** (R2020a or later recommended).
+- **Optimization Toolbox** (Required for `ga` function).
+- **Global Optimization Toolbox** (Required for advanced GA options).
+
+### Usage
+
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/mingquanjp/JCAS_Multibeam_Optimazation_GA.git
+    ```
+2.  Open MATLAB and navigate to the `jcas_multibeam_optimization` folder.
+3.  Run the desired main file based on the algorithm you want to test:
+
+    - Run `main.m` to see the baseline ILS result.
+    - Run `main_ga_elitism.m` to see the recommended optimized GA result.
+
+    ```matlab
+    >> main_ga_elitism
+    ```
+
+4.  The script will:
+    - Initialize the antenna array parameters (12-element ULA).
+    - Define the desired communication direction (`desDirs_c = 0.0`).
+    - Run the optimization loop.
+    - **Plot** the comparison between the Desired Pattern, Conventional Pattern, and Optimized Pattern.
+
+## Results Visualization
+
+The output figures will display:
+
+- **Magenta Line (`-*`)**: The Desired Pattern (Ideal shape).
+- **Red Line**: The Optimized Pattern generated by the algorithm.
+- **Black Dashed Line**: The Initial/Reference Pattern.
+
+The goal is to have the Red line match the Magenta line as closely as possible, especially at the main beam and null points.
+
+## References
+
+This work is inspired by and extends the concepts from:
+
+> "Multibeam for Joint Communication and Radar Sensing Using Steerable Analog Antenna Arrays" - _IEEE Internet of Things Journal_.
+
+---
